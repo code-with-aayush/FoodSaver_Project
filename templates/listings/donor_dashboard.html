@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-8 p-4 md:p-8 lg:p-10 max-w-[1400px] mx-auto">
+    <!-- Page Heading -->
+    <div class="md:hidden mb-6">
+        <h1 class="text-2xl font-black text-gray-900 dark:text-white">Dashboard</h1>
+    </div>
+
+    <!-- Impact Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div
+            class="bg-primary/10 rounded-2xl p-6 border border-primary/20 hover:scale-[1.02] transition-transform duration-300">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined">scale</span>
+                </div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-[#4c9a4c]">Total Saved</h3>
+            </div>
+            <p class="text-3xl font-black text-[#0d1b0d] dark:text-white">
+                1,240 <span class="text-sm font-normal text-slate-500">kg</span>
+            </p>
+        </div>
+        <div
+            class="bg-primary/10 rounded-2xl p-6 border border-primary/20 hover:scale-[1.02] transition-transform duration-300">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined">group</span>
+                </div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-[#4c9a4c]">People Fed</h3>
+            </div>
+            <p class="text-3xl font-black text-[#0d1b0d] dark:text-white">1,200</p>
+        </div>
+        <div
+            class="bg-primary/10 rounded-2xl p-6 border border-primary/20 hover:scale-[1.02] transition-transform duration-300">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined">co2</span>
+                </div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-[#4c9a4c]">CO2 Avoided</h3>
+            </div>
+            <p class="text-3xl font-black text-[#0d1b0d] dark:text-white">
+                3,100 <span class="text-sm font-normal text-slate-500">kg</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="flex justify-end">
+        <a href="{% url 'create_listing' %}"
+            class="flex items-center gap-2 bg-primary text-[#0d1b0d] font-bold py-3 px-6 rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+            <span class="material-symbols-outlined">add_circle</span>
+            Post New Surplus
+        </a>
+    </div>
+
+    <!-- ========== PICKUP OTP VERIFICATION CODES ========== -->
+    {% if pickup_list %}
+    <div
+        class="bg-white dark:bg-[#152915] rounded-2xl border border-[#cfe7cf] dark:border-[#2a3d2a] shadow-sm overflow-hidden">
+        <div
+            class="p-6 border-b border-[#cfe7cf] dark:border-[#2a3d2a] bg-[#f9fbf9] dark:bg-white/5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="size-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-blue-600">pin</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-[#0d1b0d] dark:text-white">Pickup Verification Codes</h3>
+                    <p class="text-xs text-slate-400">Share this OTP only with the assigned volunteer at pickup</p>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full">{{pickup_count}}
+                Active</span>
+        </div>
+        <div class="divide-y divide-[#cfe7cf] dark:divide-[#2a3d2a]">
+            {% for p in pickup_list %}
+            <div class="p-6 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div
+                                class="size-10 rounded-xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center">
+                                {% if p.ftype == 'cooked' %}
+                                <span class="material-symbols-outlined text-green-600">restaurant</span>
+                                {% elif p.ftype == 'raw' %}
+                                <span class="material-symbols-outlined text-green-600">grocery</span>
+                                {% else %}
+                                <span class="material-symbols-outlined text-green-600">takeout_dining</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-[#0d1b0d] dark:text-white">{{p.desc|truncatechars:40}}</h4>
+                                <p class="text-xs text-slate-500">Volunteer: <span class="font-bold">{{p.vname}}</span>
+                                    &bull; NGO: <span class="font-bold">{{p.ngo}}</span></p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3 text-sm">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Quantity</p>
+                                <p class="font-bold text-[#0d1b0d] dark:text-white">{{p.qty}} kg</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Assigned</p>
+                                <p class="font-bold text-slate-600">{{p.assigntime|timesince}} ago</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</p>
+                                {% if p.pstatus == 'assigned' %}
+                                <span
+                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700"><span
+                                        class="w-1 h-1 rounded-full bg-blue-500"></span> Awaiting Pickup</span>
+                                {% else %}
+                                <span
+                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700"><span
+                                        class="w-1 h-1 rounded-full bg-amber-500"></span> Picked Up</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="min-w-[180px] text-center">
+                        {% if p.otp_verified %}
+                        <div
+                            class="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-green-600 mb-1">Verified
+                                &#10003;</p>
+                            <p class="text-2xl font-black tracking-[0.3em] text-green-700 font-mono">{{p.otp_code}}</p>
+                            <p class="text-[10px] text-green-500 mt-1">{{p.otp_verified_at|timesince}} ago</p>
+                        </div>
+                        {% else %}
+                        <div
+                            class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1">Verification
+                                OTP</p>
+                            <p class="text-3xl font-black tracking-[0.3em] text-blue-700 font-mono">{{p.otp_code}}</p>
+                            <p class="text-[10px] text-blue-400 mt-1">Share with volunteer at pickup</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Live Listings Section -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-black text-[#0d1b0d] dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-green-500">broadcast_on_home</span>
+                Live Listings
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for listing in listings %}
+            {% if listing.status == 'active' %}
+            <div
+                class="bg-white dark:bg-[#152915] rounded-xl border border-[#cfe7cf] dark:border-[#2a3d2a] p-5 shadow-sm hover:shadow-md transition-all group relative">
+                <div
+                    class="absolute top-4 right-4 text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center gap-1">
+                    <span class="size-1.5 rounded-full bg-green-500 animate-pulse"></span> Active
+                </div>
+
+                <div class="flex items-start gap-4 mb-4">
+                    <div
+                        class="size-12 rounded-xl bg-[#e7f3e7] dark:bg-primary/20 flex items-center justify-center text-primary text-2xl">
+                        <span class="material-symbols-outlined">
+                            {% if listing.food_type == 'cooked' %}restaurant
+                            {% elif listing.food_type == 'raw' %}grocery
+                            {% else %}takeout_dining{% endif %}
+                        </span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#0d1b0d] dark:text-white line-clamp-1">{{ listing.description }}</h3>
+                        <p class="text-xs text-slate-500">{{ listing.get_food_type_display }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Quantity</p>
+                        <p class="font-bold text-[#0d1b0d] dark:text-white">{{ listing.quantity_kg }} kg</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Expires</p>
+                        <p class="font-bold text-orange-600">{{ listing.expiry_time|timeuntil }}</p>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-[#cfe7cf] dark:border-[#2a3d2a] flex items-center justify-between">
+                    <span class="text-xs text-slate-400">Posted {{ listing.created_at|timesince }} ago</span>
+                    <button class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors">Mark
+                        Inactive</button>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+            <div
+                class="col-span-full py-10 text-center border-2 border-dashed border-slate-200 dark:border-white/10 rounded-xl">
+                <p class="text-slate-500 font-bold">No live listings currently.</p>
+                <p class="text-sm text-slate-400">Post a new surplus to see it here.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- Column 1: Incoming (Pending) Claims -->
+        <div class="space-y-6">
+            <div
+                class="bg-white dark:bg-[#152915] rounded-2xl border border-[#cfe7cf] dark:border-[#2a3d2a] shadow-sm overflow-hidden min-h-[400px]">
+                <div
+                    class="p-6 border-b border-[#cfe7cf] dark:border-[#2a3d2a] bg-[#f9fbf9] dark:bg-white/5 flex justify-between items-center">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-orange-500">notifications_active</span>
+                        Incoming Claims
+                    </h3>
+                    {% with count=pending_claims.count %}
+                    <span class="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">{{count}}
+                        Pending</span>
+                    {% endwith %}
+                </div>
+
+                <div class="p-6 space-y-4">
+                    {% for claim in pending_claims %}
+                    <div
+                        class="bg-white dark:bg-black/20 rounded-xl border border-orange-200 dark:border-orange-500/30 p-5 shadow-sm relative group overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                {% with claimant=claim.claimant.username food=claim.listing.get_food_type_display %}
+                                <h4 class="font-bold text-lg">{{claimant}}</h4>
+                                <p class="text-sm text-slate-500">wants to pick up <span
+                                        class="font-bold text-slate-700 dark:text-slate-300">{{food}}</span></p>
+                                {% endwith %}
+                            </div>
+                            <span class="text-xs font-mono text-slate-400">{{claim.claimed_at|timesince}} ago</span>
+                        </div>
+
+                        <div class="flex items-center md:justify-end gap-3 mt-4">
+                            <a href="{% url 'reject_claim' claim.id %}"
+                                class="flex-1 md:flex-none px-4 py-2 border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg text-sm font-bold text-center transition-colors">
+                                Reject
+                            </a>
+                            <a href="{% url 'approve_claim' claim.id %}"
+                                class="flex-1 md:flex-none px-6 py-2 bg-primary text-[#0d1b0d] rounded-lg text-sm font-bold shadow-md shadow-primary/20 hover:brightness-110 text-center flex items-center justify-center gap-2 transition-all">
+                                <span class="material-symbols-outlined text-lg">check_circle</span>
+                                Confirm Handover
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-12">
+                        <div
+                            class="size-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-symbols-outlined text-3xl text-slate-400">inbox</span>
+                        </div>
+                        <h4 class="text-slate-500 font-medium">No pending claims</h4>
+                        <p class="text-slate-400 text-sm mt-1">New requests will appear here.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 2: Claims History -->
+        <div class="space-y-6">
+            <div
+                class="bg-white dark:bg-[#152915] rounded-2xl border border-[#cfe7cf] dark:border-[#2a3d2a] shadow-sm overflow-hidden min-h-[400px]">
+                <div
+                    class="p-6 border-b border-[#cfe7cf] dark:border-[#2a3d2a] bg-[#f9fbf9] dark:bg-white/5 flex justify-between items-center">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-slate-500">history</span>
+                        Claim History
+                    </h3>
+                </div>
+
+                <div class="divide-y divide-[#cfe7cf] dark:divide-[#2a3d2a]">
+                    {% for claim in history_claims %}
+                    <div
+                        class="p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors flex items-center justify-between group">
+                        <div class="flex items-center gap-4">
+                            {% if claim.status == 'completed' %}
+                            <div
+                                class="size-10 rounded-full flex items-center justify-center bg-green-100 text-green-600">
+                                <span class="material-symbols-outlined text-xl">task_alt</span>
+                            </div>
+                            {% elif claim.status == 'rejected' %}
+                            <div class="size-10 rounded-full flex items-center justify-center bg-red-100 text-red-600">
+                                <span class="material-symbols-outlined text-xl">cancel</span>
+                            </div>
+                            {% else %}
+                            <div
+                                class="size-10 rounded-full flex items-center justify-center bg-slate-100 text-slate-600">
+                                <span class="material-symbols-outlined text-xl">schedule</span>
+                            </div>
+                            {% endif %}
+
+                            <div>
+                                <p class="font-bold text-sm text-[#0d1b0d] dark:text-white">
+                                    {% with claimant=claim.claimant.username %}{{claimant}}{% endwith %}
+                                </p>
+                                <p class="text-xs text-slate-500">
+                                    {% with food=claim.listing.description|truncatechars:30 %}{{food}}{% endwith %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            {% if claim.status == 'completed' %}
+                            <span
+                                class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700">Completed</span>
+                            {% elif claim.status == 'rejected' %}
+                            <span
+                                class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-red-50 text-red-600">Rejected</span>
+                            {% else %}
+                            <span
+                                class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">{{claim.status}}</span>
+                            {% endif %}
+                            <p class="text-[10px] text-slate-400 mt-1">{{claim.claimed_at|date:"M d"}}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 text-sm">No history yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

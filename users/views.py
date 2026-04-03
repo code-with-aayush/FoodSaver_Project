@@ -210,8 +210,13 @@ def volunteer_dashboard(request):
             'assigntime': a.assigned_at,
         })
 
+    ngo_name = ''
+    if volunteer.ngo:
+        ngo_name = volunteer.ngo.institution_name or volunteer.ngo.username
+
     return render(request, 'users/volunteer_dashboard.html', {
         'volunteer': volunteer,
+        'ngo_name': ngo_name,
         'active_assignments': active_assignments,
         'completed_assignments': completed_assignments,
         'active_list': active_list,

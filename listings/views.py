@@ -165,6 +165,10 @@ def claimant_dashboard(request):
         pending_list.append({
             'id': c.id,
             'desc': c.listing.description,
+            'donor_name': getattr(c.listing.donor, 'institution_name', '') or c.listing.donor.username,
+            'qty': c.listing.quantity_kg,
+            'claim_time': c.claimed_at,
+            'status': c.status,
         })
     
     # 2. Approved Claims (Need assignment)
@@ -209,6 +213,9 @@ def claimant_dashboard(request):
             'status_display': t.get_status_display(),
         })
 
+    # Extract WhatsApp invite payload from session if just added a volunteer
+    new_volunteer_invite = request.session.pop('new_volunteer_invite', None)
+
     return render(request, 'listings/claimant_dashboard.html', {
         'listings': listings, 
         'pending_claim_ids': my_pending_claims_ids,
@@ -227,6 +234,9 @@ def claimant_dashboard(request):
         'unassigned_list': unassigned_list,
         'assigned_pickup_tasks': assigned_pickup_tasks_qs,
         'assigned_tasks_list': assigned_tasks_list,
+        
+        # Invite Data
+        'new_volunteer_invite': new_volunteer_invite,
     })
 
 

@@ -107,37 +107,36 @@ def add_volunteer(request):
             volunteer.user = vol_user
             volunteer.save()
 
-            # Send email with credentials
-            if email:
-                ngo_name = request.user.institution_name or request.user.username
-                subject = f"Welcome to Food Saver — You've been invited by {ngo_name}"
-                
-                # Dynamically build the login URL based on current host
-                portal_url = request.build_absolute_uri('/users/volunteer/login/')
-                
-                message = (
-                    f"Hello {name},\n\n"
-                    f"You have been added as a volunteer by {ngo_name} on Food Saver.\n\n"
-                    f"Here are your login credentials:\n"
-                    f"  Portal: {portal_url}\n"
-                    f"  Username: {username}\n"
-                    f"  Password: {raw_password}\n\n"
-                    f"Your Volunteer ID: {volunteer.volunteer_id}\n\n"
-                    f"Please log in and change your password at your earliest convenience.\n\n"
-                    f"Together, let's end hunger!\n"
-                    f"— Food Saver Team"
-                )
-                try:
-                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
-                    messages.success(request, f"Volunteer {name} added successfully! An email with credentials has been sent to them.")
-                except Exception as e:
-                    import logging
-                    logger = logging.getLogger(__name__)
-                    logger.error(f"Failed to send volunteer invitation email to {email}: {e}")
-                    # Give the user visual feedback that the volunteer was created but SMTP failed
-                    messages.warning(request, f"Volunteer {name} created successfully, but the email failed to send. Please give them their credentials manually: {username} / {raw_password}")
-            else:
-                messages.success(request, f"Volunteer {name} added successfully!")
+            # Save direct invite generation data to session for the frontend popup
+            import urllib.parse
+            ngo_name = request.user.institution_name or request.user.username
+            portal_url = request.build_absolute_uri('/users/volunteer/login/')
+            
+            wa_text = (
+                f"Hello {name}, you have been added as a volunteer by *{ngo_name}* on Food Saver.\n\n"
+                f"Here are your login credentials:\n"
+                f"Portal: {portal_url}\n"
+                f"Username: {username}\n"
+                f"Password: {raw_password}\n\n"
+                f"Together, let's end hunger!"
+            )
+            
+            # Format phone number for wa.me link (strip non-digits, assume India +91 if 10 digits)
+            clean_phone = ''
+            if phone:
+                clean_phone = ''.join(filter(str.isdigit, phone))
+                if len(clean_phone) == 10:
+                    clean_phone = '91' + clean_phone
+                    
+            wa_link = f"https://wa.me/{clean_phone}?text={urllib.parse.quote(wa_text)}"
+            
+            request.session['new_volunteer_invite'] = {
+                'name': name,
+                'username': username,
+                'password': raw_password,
+                'portal_url': portal_url,
+                'wa_link': wa_link
+            }
 
     return redirect('claimant_dashboard')
 

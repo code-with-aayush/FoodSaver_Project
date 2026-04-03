@@ -83,6 +83,7 @@ def add_volunteer(request):
             # Create a user account for the volunteer
             email = form.cleaned_data.get('email', '')
             name = form.cleaned_data.get('name', 'volunteer')
+            phone = form.cleaned_data.get('phone', '')
 
             # Generate username from name + random suffix
             base_username = name.lower().replace(' ', '_')[:15]

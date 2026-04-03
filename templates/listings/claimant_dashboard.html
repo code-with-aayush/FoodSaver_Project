@@ -361,12 +361,12 @@
 </div>
 <!-- ========== END ASSIGN PICKUPS SECTION ========== -->
 
-<div class="h-[calc(100vh-64px)] w-full flex bg-background-light dark:bg-black relative overflow-hidden">
+<div class="h-[calc(100vh-64px)] w-full flex flex-col lg:flex-row bg-background-light dark:bg-black relative overflow-hidden">
 
     <!-- 1. Left Map Area -->
-    <div class="flex-1 relative bg-[#e5e7eb] dark:bg-[#1f1f1f]">
+    <div class="flex-none h-1/2 lg:h-auto lg:flex-1 relative bg-[#e5e7eb] dark:bg-[#1f1f1f]">
         <!-- Search, Map, Zoom controls -->
-        <div class="absolute top-6 left-6 z-[1000] w-80">
+        <div class="absolute top-4 lg:top-6 left-4 lg:left-6 z-[1000] w-64 lg:w-80">
             <div
                 class="flex items-center gap-3 bg-white dark:bg-zinc-800 px-4 py-3 rounded-xl shadow-lg border border-gray-100 dark:border-white/5">
                 <button id="searchBtn"
@@ -383,7 +383,7 @@
 
     <!-- 2. Right Sidebar Listings -->
     <div
-        class="w-[480px] bg-[#f9fafb] dark:bg-black border-l border-gray-200 dark:border-white/10 flex flex-col z-20 shadow-2xl">
+        class="w-full lg:w-[480px] flex-none h-1/2 lg:h-auto bg-[#f9fafb] dark:bg-black border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-white/10 flex flex-col z-20 shadow-2xl">
         <div class="p-6 pb-2">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-black text-black dark:text-white">Urgent Listings</h2>

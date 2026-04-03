@@ -99,9 +99,9 @@
                 {% endif %}
             </nav>
 
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3 md:gap-4">
                 {% if user.is_authenticated %}
-                <span class="text-sm font-medium mr-2 hidden sm:inline">Hi, {{ user.username }}</span>
+                <span class="text-sm font-medium mr-2 hidden md:inline">Hi, {{ user.username }}</span>
                 <div class="flex items-center gap-2">
                     <div
                         class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs border border-primary/20">
@@ -110,7 +110,7 @@
                     <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}
                         <button type="submit"
-                            class="flex min-w-[80px] cursor-pointer items-center justify-center rounded-lg h-9 px-4 bg-[#e7f3e7] dark:bg-white/10 text-[#0d1b0d] dark:text-white text-xs font-bold border border-primary/20 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all">
+                            class="hidden md:flex min-w-[80px] cursor-pointer items-center justify-center rounded-lg h-9 px-4 bg-[#e7f3e7] dark:bg-white/10 text-[#0d1b0d] dark:text-white text-xs font-bold border border-primary/20 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all">
                             Logout
                         </button>
                     </form>
@@ -121,12 +121,81 @@
                     Login
                 </a>
                 <a href="{% url 'register' %}"
-                    class="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-[#e7f3e7] dark:bg-white/10 text-[#0d1b0d] dark:text-white text-sm font-bold border border-primary/20">
+                    class="flex min-w-[90px] md:min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-9 md:h-10 px-4 md:px-5 bg-[#e7f3e7] dark:bg-white/10 text-[#0d1b0d] dark:text-white text-sm font-bold border border-primary/20">
                     Join Us
                 </a>
                 {% endif %}
+
+                <!-- Hamburger Button -->
+                <button id="mobile-menu-btn" class="md:hidden flex items-center justify-center p-2 rounded-lg bg-[#e7f3e7] dark:bg-white/10 text-[#0d1b0d] dark:text-white border border-primary/20">
+                    <span class="material-symbols-outlined text-sm">menu</span>
+                </button>
             </div>
         </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-background-light dark:bg-background-dark border-b border-[#e7f3e7] dark:border-white/10 flex-col shadow-xl z-50">
+            <nav class="flex flex-col px-6 py-6 gap-5">
+                {% if user.is_authenticated %}
+                <div class="pb-4 border-b border-[#e7f3e7] dark:border-white/10 mb-2">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Signed in as</p>
+                    <p class="font-bold text-[#0d1b0d] dark:text-white">{{ user.username }}</p>
+                </div>
+                
+                {% if user.role == 'donor' %}
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'donor_dashboard' %}"><span class="material-symbols-outlined text-gray-400">dashboard</span> Dashboard</a>
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'create_listing' %}"><span class="material-symbols-outlined text-gray-400">add_circle</span> Post Food</a>
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'leaderboard' %}"><span class="material-symbols-outlined text-gray-400">leaderboard</span> Leaderboard</a>
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'connected_ngos' %}"><span class="material-symbols-outlined text-gray-400">handshake</span> Connected NGOs</a>
+
+                {% elif user.role == 'claimant' %}
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'claimant_dashboard' %}"><span class="material-symbols-outlined text-gray-400">dashboard</span> Dashboard</a>
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'my_claims' %}"><span class="material-symbols-outlined text-gray-400">list_alt</span> My Claims</a>
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'history' %}"><span class="material-symbols-outlined text-gray-400">history</span> History</a>
+
+                {% elif user.role == 'volunteer' %}
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'volunteer_dashboard' %}"><span class="material-symbols-outlined text-gray-400">dashboard</span> Dashboard</a>
+
+                {% else %}
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'dashboard' %}"><span class="material-symbols-outlined text-gray-400">dashboard</span> Dashboard</a>
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'ngo_directory' %}"><span class="material-symbols-outlined text-gray-400">groups</span> Community</a>
+                <a class="text-[#0d1b0d] dark:text-slate-200 text-lg font-semibold hover:text-primary transition-colors flex items-center gap-3" href="{% url 'leaderboard' %}"><span class="material-symbols-outlined text-gray-400">moving</span> Impact &amp; Stats</a>
+                {% endif %}
+                
+                <div class="pt-4 mt-2 border-t border-[#e7f3e7] dark:border-white/10">
+                    <form action="{% url 'logout' %}" method="post" class="w-full">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-lg py-3 bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all">
+                            <span class="material-symbols-outlined text-sm">logout</span> Logout
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="w-full flex items-center justify-center gap-2 rounded-lg py-3 bg-[#e7f3e7] dark:bg-white/10 text-[#0d1b0d] dark:text-white font-bold">
+                    Login to Account
+                </a>
+                <a href="{% url 'register' %}" class="w-full flex items-center justify-center gap-2 rounded-lg py-3 bg-primary text-black font-bold shadow-lg shadow-primary/20">
+                    Join FoodSaver Today
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        
+        <script>
+            document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                const icon = this.querySelector('span');
+                if (menu.classList.contains('hidden')) {
+                    menu.classList.remove('hidden');
+                    menu.classList.add('flex');
+                    icon.textContent = 'close';
+                } else {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                    icon.textContent = 'menu';
+                }
+            });
+        </script>
     </header>
     {% endblock %}
 

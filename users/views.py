@@ -111,11 +111,15 @@ def add_volunteer(request):
             if email:
                 ngo_name = request.user.institution_name or request.user.username
                 subject = f"Welcome to Food Saver — You've been invited by {ngo_name}"
+                
+                # Dynamically build the login URL based on current host
+                portal_url = request.build_absolute_uri('/users/volunteer/login/')
+                
                 message = (
                     f"Hello {name},\n\n"
                     f"You have been added as a volunteer by {ngo_name} on Food Saver.\n\n"
                     f"Here are your login credentials:\n"
-                    f"  Portal: http://localhost:8000/users/volunteer/login/\n"
+                    f"  Portal: {portal_url}\n"
                     f"  Username: {username}\n"
                     f"  Password: {raw_password}\n\n"
                     f"Your Volunteer ID: {volunteer.volunteer_id}\n\n"
@@ -125,10 +129,15 @@ def add_volunteer(request):
                 )
                 try:
                     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+                    messages.success(request, f"Volunteer {name} added successfully! An email with credentials has been sent to them.")
                 except Exception as e:
                     import logging
                     logger = logging.getLogger(__name__)
                     logger.error(f"Failed to send volunteer invitation email to {email}: {e}")
+                    # Give the user visual feedback that the volunteer was created but SMTP failed
+                    messages.warning(request, f"Volunteer {name} created successfully, but the email failed to send. Please give them their credentials manually: {username} / {raw_password}")
+            else:
+                messages.success(request, f"Volunteer {name} added successfully!")
 
     return redirect('claimant_dashboard')
 
@@ -172,6 +181,7 @@ def volunteer_dashboard(request):
     for a in active_assignments:
         listing = a.claim.listing
         donor = listing.donor
+        otp_obj = getattr(a, 'otp', None)
         active_list.append({
             'id': a.id,
             'desc': listing.description,
@@ -183,6 +193,8 @@ def volunteer_dashboard(request):
             'status': a.status,
             'pickup_instructions': getattr(listing, 'pickup_instructions', ''),
             'notes': a.notes if hasattr(a, 'notes') else '',
+            'otp_code': otp_obj.code if otp_obj else '',
+            'otp_verified': otp_obj.is_verified if otp_obj else False,
         })
 
     # Pre-process completed assignments for template
@@ -263,9 +275,10 @@ def verify_pickup_otp(request, assignment_id):
     """Verify the 6-digit OTP to confirm food pickup.
     
     This is the ONLY way to transition an assignment to 'picked_up' status.
+    The Donor authenticates the picking volunteer using the OTP.
     """
-    if request.user.role != 'volunteer':
-        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+    if request.user.role != 'donor':
+        return JsonResponse({'success': False, 'error': 'Unauthorized. Only donors can verify pickups.'}, status=403)
 
     from listings.models import PickupAssignment, PickupOTP
     from django.utils import timezone
@@ -273,7 +286,7 @@ def verify_pickup_otp(request, assignment_id):
     assignment = get_object_or_404(
         PickupAssignment,
         id=assignment_id,
-        volunteer__user=request.user,
+        claim__listing__donor=request.user,
         status='assigned',
     )
 
@@ -288,7 +301,7 @@ def verify_pickup_otp(request, assignment_id):
         return JsonResponse({'success': False, 'error': 'OTP has already been used.'}, status=400)
 
     if pickup_otp.code != otp_code:
-        return JsonResponse({'success': False, 'error': 'Incorrect OTP. Please check with the restaurant.'}, status=400)
+        return JsonResponse({'success': False, 'error': 'Incorrect OTP.'}, status=400)
 
     # OTP is correct — mark verified and update assignment status
     pickup_otp.is_verified = True
@@ -298,7 +311,7 @@ def verify_pickup_otp(request, assignment_id):
     assignment.status = 'picked_up'
     assignment.save()
 
-    return JsonResponse({'success': True, 'message': 'OTP verified! Food marked as picked up.'})
+    return JsonResponse({'success': True, 'message': 'OTP verified! Food marked as picked up by volunteer.'})
 
 
 # ======== EXISTING VIEWS ========

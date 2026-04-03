@@ -56,7 +56,6 @@ def donor_dashboard(request):
             'ngo': getattr(p.claim.claimant, 'institution_name', '') or p.claim.claimant.username,
             'assigntime': p.assigned_at,
             'pstatus': p.status,
-            'otp_code': otp_obj.code if otp_obj else '',
             'otp_verified': otp_obj.is_verified if otp_obj else False,
             'otp_verified_at': otp_obj.verified_at if otp_obj else None,
         })

@@ -174,28 +174,25 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex flex-col gap-2 min-w-[200px]">
+                    <div class="flex flex-col gap-2 min-w-[200px] text-center">
                         {% if a.status == 'assigned' %}
-                        <!-- OTP Verification Form -->
-                        <div id="otp-section-{{a.id}}"
-                            class="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-2">Enter OTP from
-                                Restaurant</p>
-                            <div class="flex gap-2">
-                                <input type="text" id="otp-input-{{a.id}}" maxlength="6" pattern="[0-9]{6}"
-                                    inputmode="numeric" placeholder="000000"
-                                    class="w-full px-3 py-2.5 text-center text-lg font-mono font-bold tracking-[0.3em] border-2 border-blue-200 dark:border-blue-700 rounded-lg bg-white dark:bg-zinc-900 text-black dark:text-white focus:border-blue-500 focus:outline-none transition-colors"
-                                    autocomplete="off">
-                            </div>
-                            <button type="button" onclick="verifyOTP({{a.id}})" id="otp-btn-{{a.id}}"
-                                class="w-full mt-2 flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span class="material-symbols-outlined text-sm">verified</span>
-                                Verify &amp; Pick Up
-                            </button>
-                            <p id="otp-error-{{a.id}}" class="text-xs text-red-600 font-bold mt-2 hidden">
-                            </p>
-                            <p id="otp-success-{{a.id}}" class="text-xs text-green-600 font-bold mt-2 hidden"></p>
+                        {% if a.otp_verified %}
+                        <div class="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-green-600 mb-1">Verified &#10003;</p>
+                            <p class="text-2xl font-black tracking-[0.3em] text-green-700 font-mono">{{a.otp_code}}</p>
                         </div>
+                        {% else %}
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1">Verification OTP</p>
+                            <p class="text-3xl font-black tracking-[0.3em] text-blue-700 font-mono">{{a.otp_code}}</p>
+                            <p class="text-[10px] text-blue-400 mt-1 flex flex-col gap-1 items-center">
+                                <span>Share with donor at pickup</span>
+                                <span class="material-symbols-outlined text-sm animate-pulse">sync</span>
+                                <span>Waiting for donor to verify...</span>
+                            </p>
+                            <button onclick="window.location.reload()" class="mt-2 text-xs font-bold text-blue-600 hover:underline">Refresh Status</button>
+                        </div>
+                        {% endif %}
                         {% elif a.status == 'picked_up' %}
                         <form method="post" action="{% url 'update_pickup_status' a.id %}">
                             {% csrf_token %}
@@ -272,86 +269,7 @@
     {% endif %}
 
     <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        async function verifyOTP(assignmentId) {
-            const input = document.getElementById('otp-input-' + assignmentId);
-            const btn = document.getElementById('otp-btn-' + assignmentId);
-            const errorEl = document.getElementById('otp-error-' + assignmentId);
-            const successEl = document.getElementById('otp-success-' + assignmentId);
-            const otpCode = input.value.trim();
-
-            // Reset messages
-            errorEl.classList.add('hidden');
-            successEl.classList.add('hidden');
-
-            if (otpCode.length !== 6 || !/^\d{6}$/.test(otpCode)) {
-                errorEl.textContent = 'Please enter a valid 6-digit OTP.';
-                errorEl.classList.remove('hidden');
-                input.focus();
-                return;
-            }
-
-            // Disable button during request
-            btn.disabled = true;
-            btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Verifying...';
-
-            try {
-                const response = await fetch('/users/volunteer/pickup/' + assignmentId + '/verify-otp/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                    body: 'otp_code=' + encodeURIComponent(otpCode),
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    successEl.textContent = data.message;
-                    successEl.classList.remove('hidden');
-                    input.disabled = true;
-                    btn.innerHTML = '<span class="material-symbols-outlined text-sm">check_circle</span> Verified!';
-                    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                    btn.classList.add('bg-green-600');
-                    // Reload page after short delay to show updated status
-                    setTimeout(() => window.location.reload(), 1200);
-                } else {
-                    errorEl.textContent = data.error;
-                    errorEl.classList.remove('hidden');
-                    btn.disabled = false;
-                    btn.innerHTML = '<span class="material-symbols-outlined text-sm">verified</span> Verify & Pick Up';
-                    input.value = '';
-                    input.focus();
-                }
-            } catch (err) {
-                errorEl.textContent = 'Network error. Please try again.';
-                errorEl.classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerHTML = '<span class="material-symbols-outlined text-sm">verified</span> Verify & Pick Up';
-            }
-        }
-
-        // Auto-focus and numeric-only filtering for OTP inputs
-        document.querySelectorAll('[id^="otp-input-"]').forEach(input => {
-            input.addEventListener('input', function () {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-        });
+        // No OTP verification JS needed here anymore. Handled by Donor.
     </script>
 
 </div>

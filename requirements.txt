@@ -9,4 +9,3 @@ psycopg2-binary==2.9.11
 gunicorn==25.1.0
 
 
-# Foodsaver@123

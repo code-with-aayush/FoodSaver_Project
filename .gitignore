@@ -1,3 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Environment Variables
+.env
+
+# Database (using Supabase PostgreSQL in production)
+db.sqlite3
+db.sqlite3-journal
+
+# Static files (generated during build)
 staticfiles/
 
+# Media uploads
+media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

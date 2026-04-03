@@ -47,13 +47,8 @@ Initialize the database and apply migrations.
 python manage.py migrate
 ```
 
-### 5. Create a Superuser (Optional)
-To access the Django Admin panel:
-```bash
-python manage.py createsuperuser
-```
 
-### 6. Run the Server
+### 5. Run the Server
 ```bash
 python manage.py runserver
 ```

@@ -34,7 +34,7 @@ def custom_login(request):
             elif user.role == 'volunteer':
                 return redirect('volunteer_dashboard')
             elif user.role == 'admin':
-                return redirect('/admin/')
+                return redirect('admin_dashboard')
             else:
                 return redirect('index')
         else:
@@ -65,7 +65,7 @@ def dashboard(request):
     elif request.user.role == 'volunteer':
         return redirect('volunteer_dashboard')
     elif request.user.role == 'admin':
-        return redirect('/admin/')
+        return redirect('admin_dashboard')
     return render(request, 'users/dashboard_placeholder.html', {'role': 'Unknown'})
 
 
